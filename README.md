@@ -8,6 +8,8 @@ The wrapper script `diffgeoM.wl` calls the main package `diffgeo.m`, and perform
 
 ## License
 
-- `diffgeo.m` and `diffgeoManual.nb` are retrieved from http://people.brandeis.edu/~headrick/Mathematica. All rights belong to the original author, Matthew Headrick.
+- `diffgeo.m` and `diffgeoManual.nb` are retrieved from:
+  > http://people.brandeis.edu/~headrick/Mathematica <br/>
+  > All rights belong to the original author, Matthew Headrick.
 
 - All other code, including `diffgeoM.wl`, is licensed under GPLv3.
