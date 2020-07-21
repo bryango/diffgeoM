@@ -8,10 +8,10 @@
 (* ::Section:: *)
 (* Clean up symbols *)
 
-Unprotect["`Private`*"];
-ClearAll["`Private`*"];
+Unprotect["`diffgeo`*"];
+ClearAll["`diffgeo`*"];
 
-`Private`preContext = Context[];
+`diffgeo`preContext = Context[];
 
 symbols = Hold[{
 
@@ -25,6 +25,9 @@ symbols = Hold[{
 Unprotect /@ symbols;
 ClearAll /@ symbols;
 
+
+(* ::Section:: *)
+(* Renamed symbols *)
 
 renames = Hold[{
 
@@ -61,25 +64,27 @@ Unprotect /@ Keys[renames];
 ClearAll /@ Keys[renames];
 
 
+(* ::Section:: *)
+(* Pass initial values *)
+
 "# pre-define differential form symbol";
-`Private`\[DoubleStruckD] = \[DoubleStruckD];
+`diffgeo`\[DoubleStruckD] = \[DoubleStruckD];
 
 "# import vars from previous context";
-`Private`coord = coord;
-`Private`metric = metric;
+`diffgeo`coord = coord;
+`diffgeo`metric = metric;
 
 "# metricSign is globally defined";
 If[ MemberQ[{1, -1}, metricSign],
-    `Private`metricsign = metricSign;
+    `diffgeo`metricsign = metricSign;
 ];
 
 
 (* ::Section:: *)
-(* Private diffgeo *)
+(* diffgeo in sub-context *)
 
-Begin["`Private`"];
+Begin["`diffgeo`"];
 
-"# run diffgeo.m";
 Block[
     { $ContextPath
         = $ContextPath // DeleteCases["Global`"] },
@@ -99,7 +104,7 @@ End[];
 (* Personalizations *)
 
 renames // KeyValueMap[
-    #1 <> ":=" <> "`Private`" <> #2 &
+    #1 <> ":=" <> "`diffgeo`" <> #2 &
 ] // Map[ToExpression];
 
 "# Riemann in Carroll = Wald, ";
@@ -107,7 +112,7 @@ renames // KeyValueMap[
 "# ... R^u_c_a_b = - R_a_b_c^u"
 tRiemann := (
     tRiemann = Transpose[
-        - `Private`Riemann,
+        - `diffgeo`Riemann,
         {3, 4, 2, 1}
     ];
     tRiemann
@@ -119,22 +124,20 @@ Del := covD;
 (* ::Section:: *)
 (* Import as-is *)
 
-`Private`symbols = Names["`Private`*"] \
+`diffgeo`symbols = Names["`diffgeo`*"] \
     // Select[
         MemberQ[Attributes[#], Protected] &
-    ];
-
-symbolsLegacy = `Private`symbols \
+    ] \
     // Map[ StringSplit[#, "`"][[-1]] & ] \
     // Complement[#, Values[renames], {
         "\[DoubleStruckD]"
     }] &;
 
-Unprotect /@ symbolsLegacy;
-ClearAll /@ symbolsLegacy;
+Unprotect /@ `diffgeo`symbols;
+ClearAll /@ `diffgeo`symbols;
 
-symbolsLegacy // Map[
-    # <> ":=" <> "`Private`" <> # &
+`diffgeo`symbols // Map[
+    # <> ":=" <> "`diffgeo`" <> # &
 ] // Map[ToExpression];
 
 
@@ -143,4 +146,4 @@ symbolsLegacy // Map[
 
 Protect /@ symbols;
 Protect /@ Keys[renames];
-Protect /@ symbolsLegacy;
+Protect /@ `diffgeo`symbols;
