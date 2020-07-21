@@ -4,59 +4,103 @@
     https://github.com/bryango/diffgeoM
 *)
 
+
+(* ::Section:: *)
+(* Clean up symbols *)
+
+Unprotect["`Private`*"];
+ClearAll["`Private`*"];
+
 `Private`preContext = Context[];
+
+symbols = Hold[{
+
+    \[DoubleStruckD],
+    Wedge, Del
+
+}]  // Map[HoldForm, #, {2}] & \
+    // ReleaseHold \
+    // Map[ToString];
+
+Unprotect /@ symbols;
+ClearAll /@ symbols;
+
+
+renames = Hold[{
+
+        g -> metric,
+        gInv -> inverse,
+        dim -> dimen,
+        vol -> rg,
+
+        up -> up,
+        dn -> down,
+
+        displayTensor -> display,
+        formToTensor -> FormToTensor,
+        tensorToForm -> TensorToForm,
+        nameToNumber -> NameToNumber,
+
+        pD -> partial,
+        extD -> exterior,
+        lieD -> Lie,
+        covD -> covariant,
+
+        pDg -> dg,
+
+        tRicci -> RicciTensor,
+        sRicci -> RicciScalar
+
+}]  // Map[HoldForm, #, {3}] & \
+    // ReleaseHold \
+    // Association \
+    // KeyMap[ToString] \
+    // Map[ToString];
+
+Unprotect /@ Keys[renames];
+ClearAll /@ Keys[renames];
+
+
+"# pre-define differential form symbol";
+`Private`\[DoubleStruckD] = \[DoubleStruckD];
+
+"# import vars from previous context";
+`Private`coord = coord;
+`Private`metric = metric;
+
+"# metricSign is globally defined";
+If[ MemberQ[{1, -1}, metricSign],
+    `Private`metricsign = metricSign;
+];
+
 
 (* ::Section:: *)
 (* Private diffgeo *)
 
 Begin["`Private`"];
 
-"# import vars from previous context";
-{
-    coord, metric
-} = ToExpression[preContext <> #] & /@ {
-    "coord", "metric"
-};
-
-"# the sane metric convention";
-metricsign = -1;
-
 "# run diffgeo.m";
-Get[
-    FileNameJoin[{
-        DirectoryName @ $InputFileName,
-        "diffgeo.m"
-    }]
+Block[
+    { $ContextPath
+        = $ContextPath // DeleteCases["Global`"] },
+
+    Get[
+        FileNameJoin[{
+            DirectoryName @ $InputFileName,
+            "diffgeo.m"
+        }]
+    ];
 ];
 
 End[];
 
 
 (* ::Section:: *)
-(* Clean up symbols *)
-
-"# see MathUtils > holdItems";
-symbols = ToString /@ ReleaseHold[
-    MapAt[HoldForm, Hold[{
-
-        g, gInv, dim, vol
-
-    }], {All, All}]
-];
-
-Unprotect /@ symbols;
-(* Remove /@ symbols; *)
-
-
-(* ::Section:: *)
 (* Personalizations *)
 
-g := `Private`metric;
-gInv := `Private`inverse;
-dim := `Private`dimen;
-vol := `Private`rg;
-
-displayTensor := `Private`display;
+renames // KeyValueMap[
+    #1 <> ":=" <> "`Private`" <> #2 &
+] // Map[ToExpression];
 
 "# Riemann in Carroll = Wald, ";
 "# ... but with different idx ordering:";
@@ -69,36 +113,34 @@ tRiemann := (
     tRiemann
 );
 
-tRicci := `Private`RicciTensor;
-sRicci := `Private`RicciScalar;
-
-pD := `Private`partial;
-lieD := `Private`Lie;
-covD := `Private`covariant;
 Del := covD;
-
-up := `Private`up;
-dn := `Private`down;
-
-formToTensor := `Private`FormToTensor;
-tensorToForm := `Private`TensorToForm;
-nameToNumber := `Private`NameToNumber;
 
 
 (* ::Section:: *)
 (* Import as-is *)
 
-scalarQ := `Private`scalarQ;
-zeroTensor := `Private`zeroTensor;
-contract := `Private`contract;
+`Private`symbols = Names["`Private`*"] \
+    // Select[
+        MemberQ[Attributes[#], Protected] &
+    ];
 
-raise := `Private`raise;
-lower := `Private`lower;
+symbolsLegacy = `Private`symbols \
+    // Map[ StringSplit[#, "`"][[-1]] & ] \
+    // Complement[#, Values[renames], {
+        "\[DoubleStruckD]"
+    }] &;
 
-antisymmetrize := `Private`antisymmetrize;
-symmetrize := `Private`symmetrize;
+Unprotect /@ symbolsLegacy;
+ClearAll /@ symbolsLegacy;
+
+symbolsLegacy // Map[
+    # <> ":=" <> "`Private`" <> # &
+] // Map[ToExpression];
+
 
 (* ::Section:: *)
 (* Protect symbols *)
 
 Protect /@ symbols;
+Protect /@ Keys[renames];
+Protect /@ symbolsLegacy;
