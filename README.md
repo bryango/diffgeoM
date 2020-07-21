@@ -6,6 +6,55 @@ The original `diffgeo.m` is very well designed, with a minimalistic code base (o
 
 The wrapper script `diffgeoM.wl` calls the main package `diffgeo.m`, and perform various modifications. Symbols are renamed for personal convenience, while the original symbols remain accessible under the `` `diffgeo` `` context.
 
+## Usage
+
+The usage of `diffgeoM` is very much similar to the original `diffgeo.m`, which is well documented in `diffgeoManual.nb`. The only difference is that there are some new symbols:
+- The association between `new -> original` symbols is given in the variable [`renames`](diffgeoM.wl#L32)
+- Some other extended symbols are defined in [this section](diffgeoM.wl#L110). 
+
+The initial input of `diffgeoM` is `coord`, `metric`, and optionally, `metricSign` (note the captital S in `Sign`). 
+- It is recommended to run `diffgeoM` (or even the original `diffgeo.m`) in a special Mathematica "Context", especially when there are multiple coordinate systems involved. 
+- When there are multiple contexts, it is recommended to re-run `diffgeoM` before tensor calculations, to ensure that `` System` `` functions are correctly defined. 
+
+For example, 
+
+```Mathematica
+metricSign = -1;
+
+"# Define bulk coordinates outside the bulk` context";
+bulk`coord = {t, r, \[Phi]};
+"# ... in this way, the symbols: t, r and \[Phi]";
+"# ... are Global`ly available";
+
+"# Entering the bulk` context";
+Begin["bulk`"];
+
+"# Define bulk metric";
+metric = ...;
+
+"# Call diffgeoM";
+<< diffgeoM`
+
+"# Exiting the bulk` context";
+End[];
+
+
+"### Now we want to switch to another geometry";
+"# Entering the boundary` context";
+Begin["boundary`"];
+
+coord = {r, \[Phi]};
+metric = ...;
+<< diffgeoM`
+
+"# Exiting the boundary` context";
+End[];
+
+"# Ricci tensors";
+bulk`tRicci // MatrixForm
+boundary`tRicci // MatrixForm
+```
+
 ## License
 
 - `diffgeo.m` and `diffgeoManual.nb` are retrieved from:
