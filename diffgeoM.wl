@@ -13,6 +13,7 @@ ClearAll["`diffgeo`*"];
 
 `diffgeo`preContext = Context[];
 
+"# system symbols and functions";
 symbols = Hold[{
 
     \[DoubleStruckD],
@@ -103,13 +104,20 @@ End[];
 (* ::Section:: *)
 (* Personalizations *)
 
+"# See: <https://mathematica.stackexchange.com/a/68872>"
+copyDefCmdString[new_String, old_String] := (
+    "Language`ExtendedDefinition["          <> new <> "] =" <>
+    "Language`ExtendedDefinition[`diffgeo`" <> old <> "] /." <>
+                    "HoldPattern[`diffgeo`" <> old <> "] :>" <> new
+);
+
 renames // KeyValueMap[
-    #1 <> ":=" <> "`diffgeo`" <> #2 &
+    copyDefCmdString[#1, #2] &
 ] // Map[ToExpression];
 
 "# Riemann in Carroll = Wald, ";
 "# ... but with different idx ordering:";
-"# ... R^u_c_a_b = - R_a_b_c^u"
+"# ... R^u_c_a_b = - R_a_b_c^u";
 tRiemann := (
     tRiemann = Transpose[
         - `diffgeo`Riemann,
@@ -117,6 +125,10 @@ tRiemann := (
     ];
     tRiemann
 );
+
+"# avoid unnecessary simplification in covD";
+Language`ExtendedDefinition[covD] =
+Language`ExtendedDefinition[covD] /. HoldPattern[Simplify] :> Identity
 
 Del := covD;
 
@@ -129,15 +141,18 @@ Del := covD;
         MemberQ[Attributes[#], Protected] &
     ] \
     // Map[ StringSplit[#, "`"][[-1]] & ] \
-    // Complement[#, Values[renames], {
-        "\[DoubleStruckD]"
-    }] &;
+    // Complement[#,
+        (* Values[renames], *) (* no longer removed, for backward compatibility *)
+        {
+            "\[DoubleStruckD]"
+        }
+    ] &;
 
 Unprotect /@ `diffgeo`symbols;
 ClearAll /@ `diffgeo`symbols;
 
 `diffgeo`symbols // Map[
-    # <> ":=" <> "`diffgeo`" <> # &
+    copyDefCmdString[#, #] &
 ] // Map[ToExpression];
 
 
