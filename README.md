@@ -10,8 +10,8 @@ The wrapper script `diffgeoM.wl` calls the main package `diffgeo.m`, and perform
 
 The usage of `diffgeoM` is very much similar to the original `diffgeo.m`, which is well documented in `diffgeoManual.nb`. The only difference is that there are some new symbols:
 
-- The association between `new -> original` symbols is given in the variable [`renames`](diffgeoM.wl#L32)
-- Some other extended symbols are defined in [this section](diffgeoM.wl#L110).
+- The association between `new -> original` symbols is given in the variable [`renames`](diffgeoM.wl#L33)
+- Some other extended symbols are defined in [this section](diffgeoM.wl#L117).
 
 The initial input of `diffgeoM` is `coord`, `metric`, and optionally, `metricSign` (note the captital S in `Sign`; this is a rename of the original `metricsign` in `diffgeo.m`).
 
