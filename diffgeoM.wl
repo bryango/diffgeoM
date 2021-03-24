@@ -8,16 +8,20 @@
 (* ::Section:: *)
 (* Clean up symbols *)
 
+(*
 Unprotect["`diffgeo`*"];
 ClearAll["`diffgeo`*"];
 
 `diffgeo`preContext = Context[];
+ *)
 
 "# system symbols and functions";
 symbols = Hold[{
 
     \[DoubleStruckD],
-    Wedge, Del
+    Wedge, Del,
+
+    dn
 
 }]  // Map[HoldForm, #, {2}] & \
     // ReleaseHold \
@@ -36,9 +40,6 @@ renames = Hold[{
         gInv -> inverse,
         dim -> dimen,
         vol -> rg,
-
-        up -> up,
-        dn -> down,
 
         displayTensor -> display,
         formToTensor -> FormToTensor,
@@ -68,27 +69,32 @@ ClearAll /@ Keys[renames];
 (* ::Section:: *)
 (* Pass initial values *)
 
+(*
 "# pre-define differential form symbol";
 `diffgeo`\[DoubleStruckD] = \[DoubleStruckD];
 
 "# import vars from previous context";
 `diffgeo`coord = coord;
 `diffgeo`metric = metric;
+ *)
 
 "# metricSign is globally defined";
 If[ MemberQ[{1, -1}, metricSign],
-    `diffgeo`metricsign = metricSign;
+    (* `diffgeo`metricsign = metricSign; *)
+    metricsign = metricSign;
 ];
 
 
 (* ::Section:: *)
 (* diffgeo in sub-context *)
 
+(*
 Begin["`diffgeo`"];
 
 Block[
     { $ContextPath
         = $ContextPath // DeleteCases["Global`"] },
+ *)
 
     Get[
         FileNameJoin[{
@@ -96,9 +102,12 @@ Block[
             "diffgeo.m"
         }]
     ];
+
+(*
 ];
 
 End[];
+ *)
 
 
 (* ::Section:: *)
@@ -106,9 +115,9 @@ End[];
 
 "# See: <https://mathematica.stackexchange.com/a/68872>"
 copyDefCmdString[new_String, old_String] := (
-    "Language`ExtendedDefinition["          <> new <> "] =" <>
-    "Language`ExtendedDefinition[`diffgeo`" <> old <> "] /." <>
-                    "HoldPattern[`diffgeo`" <> old <> "] :>" <> new
+    "Language`ExtendedDefinition[" <> new <> "] =" <>
+    "Language`ExtendedDefinition[" <> old <> "] /." <>
+                    "HoldPattern[" <> old <> "] :>" <> new
 );
 
 renames // KeyValueMap[
@@ -120,7 +129,7 @@ renames // KeyValueMap[
 "# ... R^u_c_a_b = - R_a_b_c^u";
 tRiemann := (
     tRiemann = Transpose[
-        - `diffgeo`Riemann,
+        - Riemann,
         {3, 4, 2, 1}
     ];
     tRiemann
@@ -131,11 +140,13 @@ Language`ExtendedDefinition[covD] =
 Language`ExtendedDefinition[covD] /. HoldPattern[Simplify] :> Identity
 
 Del := covD;
+dn := down;
 
 
 (* ::Section:: *)
 (* Import as-is *)
 
+(*
 `diffgeo`symbols = Names["`diffgeo`*"] \
     // Select[
         MemberQ[Attributes[#], Protected] &
@@ -154,6 +165,7 @@ ClearAll /@ `diffgeo`symbols;
 `diffgeo`symbols // Map[
     copyDefCmdString[#, #] &
 ] // Map[ToExpression];
+ *)
 
 
 (* ::Section:: *)
@@ -161,4 +173,4 @@ ClearAll /@ `diffgeo`symbols;
 
 Protect /@ symbols;
 Protect /@ Keys[renames];
-Protect /@ `diffgeo`symbols;
+(* Protect /@ `diffgeo`symbols; *)
