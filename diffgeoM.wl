@@ -19,7 +19,7 @@ ClearAll["`diffgeo`*"];
 symbols = Hold[{
 
     \[DoubleStruckD],
-    Wedge, Del,
+    Wedge, Del, NonCommutativeMultiply
 
     dn
 
@@ -135,9 +135,17 @@ tRiemann := (
     tRiemann
 );
 
-"# avoid unnecessary simplification in covD";
-Language`ExtendedDefinition[covD] =
-Language`ExtendedDefinition[covD] /. HoldPattern[Simplify] :> Identity
+"# avoid unnecessary simplifications";
+SetAttributes[noSimlify, HoldAll];
+noSimlify[symbol_] := (
+    Unprotect[symbol];
+    Language`ExtendedDefinition[symbol] =
+    Language`ExtendedDefinition[symbol] /. HoldPattern[Simplify] :> Identity;
+);
+
+noSimlify[covD];
+noSimlify[tr];
+noSimlify[NonCommutativeMultiply];
 
 Del := covD;
 dn := down;
