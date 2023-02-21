@@ -19,7 +19,7 @@ ClearAll["`diffgeo`*"];
 symbols = Hold[{
 
     \[DoubleStruckD],
-    Wedge, Del, NonCommutativeMultiply
+    Wedge, Del, NonCommutativeMultiply,
 
     dn
 
@@ -120,6 +120,10 @@ copyDefCmdString[new_String, old_String] := (
                     "HoldPattern[" <> old <> "] :>" <> new
 );
 
+(*(*(* NEW since v13 *)*)*)
+SetOptions[Language`ExtendedDefinition, ExcludedContexts -> {}];
+SetOptions[Language`ExtendedFullDefinition, ExcludedContexts -> {}];
+
 renames // KeyValueMap[
     copyDefCmdString[#1, #2] &
 ] // Map[ToExpression];
@@ -146,6 +150,9 @@ noSimlify[symbol_] := (
 noSimlify[covD];
 noSimlify[tr];
 noSimlify[NonCommutativeMultiply];
+noSimlify[antisymmetrize]
+noSimlify[raise]
+noSimlify[lower]
 
 Del := covD;
 dn := down;
